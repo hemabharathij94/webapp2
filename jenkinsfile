@@ -37,7 +37,7 @@ pipeline {
         }
         stage ("Deploy to Container") {
             steps {
-                sh 'docker run -d --name prime-video -p 3000:3000 hemabharathi/app2:tagname'
+                sh 'docker run -d --name prime-video -p 30001:30001 hemabharathi/app2:tagname'
             }
         }
     }
