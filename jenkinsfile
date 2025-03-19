@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+    tools{
+        jdk 'jdk17'
+        nodejs 'node16'
+    }
+    stages {
+        stage('clean workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('git checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/hemabharathij94/app3.git'
+            }
+        }
+        stage("Install NPM Dependencies") {
+            steps {
+                sh "npm install"
+            }
+        }
+        stage ("Build Docker Image") {
+            steps {
+                sh "docker build -t prime-video ."
+            }
+        }
+        stage ("Tag & Push to DockerHub") {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'docker') {
+                        sh "docker tag prime-video hemabharathi/app2:tagname "
+                        sh "docker push hemabharathi/app2:tagname "
+                    }
+                }
+            }
+        }
+        stage ("Deploy to Container") {
+            steps {
+                sh 'docker run -d --name prime-video -p 3000:3000 hemabharathi/app2:tagname'
+            }
+        }
+    }
+}
