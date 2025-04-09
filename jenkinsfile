@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    tools{
+    tools {
         jdk 'jdk17'
         nodejs 'node16'
     }
@@ -12,7 +12,7 @@ pipeline {
         }
         stage('git checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/hemabharathij94/app3.git'
+                git branch: 'main', url: 'https://github.com/hemabharathij94/webapp2.git'
             }
         }
         stage("Install NPM Dependencies") {
@@ -29,15 +29,26 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker') {
-                        sh "docker tag prime-video hemabharathi/app2:tagname "
-                        sh "docker push hemabharathi/app2:tagname "
+                        sh "docker tag prime-video hemabharathi/application2:tagname "
+                        sh "docker push hemabharathi/application2:tagname "
                     }
+                }
+            }
+        }
+        stage('Docker Scout Image') {
+            steps {
+                script{
+                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){
+                       sh 'docker scout quickview hemabharathi/application2:tagname'
+                       sh 'docker scout cves hemabharathi/application2:tagname'
+                       sh 'docker scout recommendations hemabharathi/application2:tagname'
+                   }
                 }
             }
         }
         stage ("Deploy to Container") {
             steps {
-                sh 'docker run -d --name prime-video -p 3030:3030 hemabharathi/app2:tagname'
+                sh 'docker run -d --name prime-video -p 3030:3030 hemabharathi/application2:tagname'
             }
         }
     }
